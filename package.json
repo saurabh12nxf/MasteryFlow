@@ -35,7 +35,11 @@
     "resend": "^4.0.3",
     "twilio": "^5.3.7",
     "openai": "^4.77.3",
-    "@octokit/rest": "^21.0.2"
+    "@octokit/rest": "^21.0.2",
+    "tailwindcss-animate": "^1.0.7",
+    "@radix-ui/react-slot": "^1.1.1",
+    "svix": "^1.40.0",
+    "dotenv": "^16.4.7"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
