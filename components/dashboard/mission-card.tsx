@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Clock, Flame, Target, Play, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 interface MissionCardProps {
     mission: any;
@@ -24,7 +25,9 @@ export default function MissionCard({ mission }: MissionCardProps) {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Button className="w-full">Create Track</Button>
+                    <Link href="/dashboard/tracks/new">
+                        <Button className="w-full">Create Track</Button>
+                    </Link>
                 </CardContent>
             </Card>
         );
@@ -106,8 +109,8 @@ export default function MissionCard({ mission }: MissionCardProps) {
                         <div
                             key={task.id}
                             className={`p-4 rounded-lg border-2 transition-all ${task.status === "COMPLETED"
-                                    ? "bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800"
-                                    : "bg-card border-border hover:border-purple-300"
+                                ? "bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800"
+                                : "bg-card border-border hover:border-purple-300"
                                 }`}
                         >
                             <div className="flex items-start justify-between gap-3">
