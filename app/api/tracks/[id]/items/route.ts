@@ -6,9 +6,12 @@ import { eq } from "drizzle-orm";
 
 export async function POST(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        // Await params as required by Next.js 15
+        const { id } = await params;
+
         const clerkUser = await currentUser();
         if (!clerkUser) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -28,7 +31,7 @@ export async function POST(
         const [track] = await db
             .select()
             .from(tracks)
-            .where(eq(tracks.id, params.id))
+            .where(eq(tracks.id, id))
             .limit(1);
 
         if (!track) {
@@ -54,7 +57,7 @@ export async function POST(
         const existingItems = await db
             .select()
             .from(trackItems)
-            .where(eq(trackItems.trackId, params.id));
+            .where(eq(trackItems.trackId, id));
 
         let maxOrderIndex = existingItems.length > 0
             ? Math.max(...existingItems.map(i => i.orderIndex))
@@ -67,7 +70,7 @@ export async function POST(
             const [newItem] = await db
                 .insert(trackItems)
                 .values({
-                    trackId: params.id,
+                    trackId: id,
                     title: item.title,
                     description: item.description || null,
                     difficulty: item.difficulty || "MEDIUM",
@@ -88,7 +91,7 @@ export async function POST(
                 totalItems: track.totalItems + createdItems.length,
                 updatedAt: new Date(),
             })
-            .where(eq(tracks.id, params.id));
+            .where(eq(tracks.id, id));
 
         return NextResponse.json({ items: createdItems }, { status: 201 });
     } catch (error) {

@@ -6,9 +6,12 @@ import { eq, and, isNull } from "drizzle-orm";
 
 export async function POST(
     req: Request,
-    { params }: { params: { id: string; taskId: string } }
+    { params }: { params: Promise<{ id: string; taskId: string }> }
 ) {
     try {
+        // Await params as required by Next.js 15
+        const { id, taskId } = await params;
+
         const clerkUser = await currentUser();
         if (!clerkUser) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -31,7 +34,7 @@ export async function POST(
         const [task] = await db
             .select()
             .from(missionTasks)
-            .where(eq(missionTasks.id, params.taskId))
+            .where(eq(missionTasks.id, taskId))
             .limit(1);
 
         if (!task) {
@@ -55,7 +58,7 @@ export async function POST(
                 difficultyRating: difficultyRating || null,
                 effortRating: effortRating || null,
             })
-            .where(eq(missionTasks.id, params.taskId))
+            .where(eq(missionTasks.id, taskId))
             .returning();
 
         // Calculate XP

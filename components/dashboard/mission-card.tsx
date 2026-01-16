@@ -7,13 +7,15 @@ import { Progress } from "@/components/ui/progress";
 import { Clock, Flame, Target, Play, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import CompleteTaskDialog from "./complete-task-dialog";
 
 interface MissionCardProps {
     mission: any;
 }
 
 export default function MissionCard({ mission }: MissionCardProps) {
-    const [selectedTask, setSelectedTask] = useState<string | null>(null);
+    const [selectedTask, setSelectedTask] = useState<any | null>(null);
+    const [dialogOpen, setDialogOpen] = useState(false);
 
     if (!mission) {
         return (
@@ -147,14 +149,22 @@ export default function MissionCard({ mission }: MissionCardProps) {
                                 <div className="flex flex-col gap-2">
                                     {task.status === "COMPLETED" ? (
                                         <Badge className="bg-green-600">Completed</Badge>
-                                    ) : task.status === "IN_PROGRESS" ? (
-                                        <Button size="sm" variant="outline">
-                                            Complete
-                                        </Button>
                                     ) : (
-                                        <Button size="sm">
-                                            <Play className="h-4 w-4 mr-1" />
-                                            Start
+                                        <Button
+                                            size="sm"
+                                            onClick={() => {
+                                                setSelectedTask(task);
+                                                setDialogOpen(true);
+                                            }}
+                                        >
+                                            {task.status === "IN_PROGRESS" ? (
+                                                "Complete"
+                                            ) : (
+                                                <>
+                                                    <Play className="h-4 w-4 mr-1" />
+                                                    Start
+                                                </>
+                                            )}
                                         </Button>
                                     )}
                                 </div>
@@ -170,6 +180,16 @@ export default function MissionCard({ mission }: MissionCardProps) {
                     </Button>
                 )}
             </CardContent>
+
+            {/* Task Completion Dialog */}
+            {selectedTask && (
+                <CompleteTaskDialog
+                    open={dialogOpen}
+                    onOpenChange={setDialogOpen}
+                    task={selectedTask}
+                    missionId={mission.id}
+                />
+            )}
         </Card>
     );
 }

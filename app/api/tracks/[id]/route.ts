@@ -6,9 +6,12 @@ import { eq } from "drizzle-orm";
 
 export async function GET(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        // Await params as required by Next.js 15
+        const { id } = await params;
+
         const clerkUser = await currentUser();
         if (!clerkUser) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -26,7 +29,7 @@ export async function GET(
 
         // Get track with items
         const track = await db.query.tracks.findFirst({
-            where: eq(tracks.id, params.id),
+            where: eq(tracks.id, id),
             with: {
                 items: {
                     orderBy: (items, { asc }) => [asc(items.orderIndex)],
@@ -55,9 +58,12 @@ export async function GET(
 
 export async function PATCH(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        // Await params as required by Next.js 15
+        const { id } = await params;
+
         const clerkUser = await currentUser();
         if (!clerkUser) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -80,7 +86,7 @@ export async function PATCH(
         const [existingTrack] = await db
             .select()
             .from(tracks)
-            .where(eq(tracks.id, params.id))
+            .where(eq(tracks.id, id))
             .limit(1);
 
         if (!existingTrack) {
@@ -106,7 +112,7 @@ export async function PATCH(
                         : existingTrack.rotationPriority,
                 updatedAt: new Date(),
             })
-            .where(eq(tracks.id, params.id))
+            .where(eq(tracks.id, id))
             .returning();
 
         return NextResponse.json({ track: updatedTrack });
@@ -121,9 +127,12 @@ export async function PATCH(
 
 export async function DELETE(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        // Await params as required by Next.js 15
+        const { id } = await params;
+
         const clerkUser = await currentUser();
         if (!clerkUser) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -143,7 +152,7 @@ export async function DELETE(
         const [existingTrack] = await db
             .select()
             .from(tracks)
-            .where(eq(tracks.id, params.id))
+            .where(eq(tracks.id, id))
             .limit(1);
 
         if (!existingTrack) {
@@ -156,7 +165,7 @@ export async function DELETE(
         }
 
         // Delete track (cascade will delete items)
-        await db.delete(tracks).where(eq(tracks.id, params.id));
+        await db.delete(tracks).where(eq(tracks.id, id));
 
         return NextResponse.json({ success: true });
     } catch (error) {

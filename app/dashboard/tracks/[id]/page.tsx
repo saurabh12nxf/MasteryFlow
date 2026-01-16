@@ -10,12 +10,16 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Edit, Trash2, Plus, PlayCircle, CheckCircle2 } from "lucide-react";
 import AddItemsForm from "@/components/tracks/add-items-form";
+import DeleteTrackButton from "@/components/tracks/delete-track-button";
 
 export default async function TrackDetailPage({
     params,
 }: {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }) {
+    // Await params as required by Next.js 15
+    const { id } = await params;
+
     const clerkUser = await currentUser();
     if (!clerkUser) redirect("/sign-in");
 
@@ -29,7 +33,7 @@ export default async function TrackDetailPage({
 
     // Get track with items
     const track = await db.query.tracks.findFirst({
-        where: eq(tracks.id, params.id),
+        where: eq(tracks.id, id),
         with: {
             items: {
                 orderBy: (items, { asc }) => [asc(items.orderIndex)],
@@ -82,9 +86,7 @@ export default async function TrackDetailPage({
                                     Edit
                                 </Button>
                             </Link>
-                            <Button variant="destructive" size="icon">
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <DeleteTrackButton trackId={track.id} trackName={track.name} />
                         </div>
                     </div>
                 </div>
